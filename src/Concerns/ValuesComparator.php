@@ -3,6 +3,7 @@
 namespace Theograms\EditPageTester\Concerns;
 
 use Closure;
+use Filament\Forms\Components\ToggleButtons;
 use Theograms\Forms\Components\Checkbox;
 use Theograms\Forms\Components\CheckboxList;
 use Theograms\Forms\Components\CodeEditor;
@@ -65,6 +66,7 @@ trait ValuesComparator
                 Textarea::class,
                 TextInput::class,
                 TimePicker::class,
+                ToggleButtons::class,
                 Select::class => expect($this->current->$name)->toEqual($this->new->$name, $message),
 
                 CodeEditor::class,

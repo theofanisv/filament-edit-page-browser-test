@@ -4,6 +4,7 @@ namespace Theograms\EditPageTester\Concerns;
 
 use ArrayAccess;
 use Closure;
+use Filament\Forms\Components\ToggleButtons;
 use Theograms\EditPageTester\Iteration;
 use Theograms\Forms\Components\Checkbox;
 use Theograms\Forms\Components\CheckboxList;
@@ -96,6 +97,8 @@ trait FormViewer
                 DatePicker::class => $page->assertValue($s->input(), $this->formatDate($this->current->$name)),
 
                 Toggle::class => $page->assertAttribute($s->toggleButton(), 'aria-checked', $this->current->$name ? 'true' : 'false'),
+
+                ToggleButtons::class => $page->assertChecked($s->toggleButtonsItem($this->current->$name)),
 
                 Checkbox::class => $this->current->$name
                     ? $page->assertChecked($s->checkbox())

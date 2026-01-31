@@ -1,20 +1,16 @@
 <?php
 
 use App\Filament\Resources\Vehicles\Pages\EditVehicle;
-use App\Models\Customer;
-use App\Models\Partner;
-use App\Models\Spot;
 use App\Models\Vehicle;
-use App\Models\VehicleType;
 use Filament\Facades\Filament;
-use Tests\Feature\Browser\Helpers\EditPageBrowser;
+use Theograms\EditPageTester\EditPageTester;
 
 
 beforeEach(function () {
     Filament::setCurrentPanel('admin');
     // $this->actingAs('some user with permissions to edit vehicles');
-    $model = Vehicle::factory()->fullyFilled()->create()->refresh();
-    $this->edit_page_browser = EditPageBrowser::make($model);
+    $model = Vehicle::factory()->create()->refresh();
+    $this->edit_page_browser = EditPageTester::make($model);
 });
 
 test(class_basename(EditVehicle::class) . ' test preview', function () {

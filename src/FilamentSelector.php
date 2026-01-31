@@ -130,6 +130,21 @@ class FilamentSelector
         return $this->wirePartial() . ' input[type=checkbox]';
     }
 
+    public function radioInput(string $value): string
+    {
+        return $this->wirePartial() . " input[type=radio][value=\"$value\"]";
+    }
+
+    public function toggleButtonsItem(string $value): string
+    {
+        return $this->radioInput($value);
+    }
+
+    public function labelFor(string $id): string
+    {
+        return 'label[for="' . $this->escape($id) . '"]';
+    }
+
     protected function idSelector(): string
     {
         return '#' . str_replace(['.', ':', '-', '>'], ['\\.', '\\:', '\\-', '\\>'], "form.{$this->name}");

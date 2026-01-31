@@ -3,6 +3,7 @@
 namespace Theograms\EditPageTester\Concerns;
 
 use Closure;
+use Filament\Forms\Components\ToggleButtons;
 use Theograms\Forms\Components\Checkbox;
 use Theograms\Forms\Components\CheckboxList;
 use Theograms\Forms\Components\CodeEditor;
@@ -75,25 +76,32 @@ trait FormFiller
 
                 RichEditor::class => $page->type($s->richText(), $this->new->$name),
 
-                DateTimePicker::class => $page
-                    ->click($s->datetimeTrigger())
-                    ->type($s->datetimeYearInput(), (string)$this->new->$name->year)
-                    ->select($s->datetimeMonthSelect(), $this->new->$name->month - 1)
-                    ->type($s->datetimeHourInput(), (string)$this->new->$name->hour)
-                    ->type($s->datetimeMinuteInput(), (string)$this->new->$name->minute)
-                    ->type($s->datetimeSecondInput(), (string)$this->new->$name->second)
-                    ->wait(0.3) // Delay is needed (unreasonably).
-                    ->click($s->datetimeDayDiv($this->new->$name->day)),
+                DateTimePicker::class => ($datetime = $this->new->$name)
+                    ? $page
+                        ->click($s->datetimeTrigger())
+                        ->type($s->datetimeYearInput(), (string)$datetime->year)
+                        ->select($s->datetimeMonthSelect(), $datetime->month - 1)
+                        ->type($s->datetimeHourInput(), (string)$datetime->hour)
+                        ->type($s->datetimeMinuteInput(), (string)$datetime->minute)
+                        ->type($s->datetimeSecondInput(), (string)$datetime->second)
+                        ->wait(0.3) // Delay is needed (unreasonably).
+                        ->click($s->datetimeDayDiv($datetime->day))
+                    : $page->keys($s->input(), 'Backspace'),
 
-                DatePicker::class => $page
-                    ->click($s->datetimeTrigger())
-                    ->type($s->datetimeYearInput(), (string)$this->new->$name->year)
-                    ->select($s->datetimeMonthSelect(), $this->new->$name->month - 1)
-                    ->click($s->datetimeDayDiv($this->new->$name->day)),
+                DatePicker::class => ($date = $this->new->$name)
+                    ? $page
+                        ->click($s->datetimeTrigger())
+                        ->type($s->datetimeYearInput(), (string)$date->year)
+                        ->select($s->datetimeMonthSelect(), $date->month - 1)
+                        ->click($s->datetimeDayDiv($date->day))
+                    : $page->keys($s->input(), 'Backspace'),
+
 
                 Toggle::class => str($page->attribute($s->toggleButton(), 'aria-checked'))->toBoolean() !== (bool)$this->new->$name
                     ? $page->click($s->toggleButton())
                     : null,
+
+                ToggleButtons::class => $page->click($s->labelFor($page->attribute($s->toggleButtonsItem($this->new->$name), 'id'))),
 
                 Checkbox::class => $this->new->$name
                     ? $page->check($s->checkbox())

@@ -140,10 +140,10 @@ composer require pestphp/pest-plugin-laravel --dev
 
 ### Filament classes not found
 
-Ensure Filament v4 is installed:
+Ensure Filament v4 or v5 is installed:
 
 ```bash
-composer require filament/filament:"^4.0"
+composer require filament/filament:"^4.0|^5.0"
 ```
 
 ## Next Steps

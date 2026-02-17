@@ -2,11 +2,16 @@
 
 All notable changes to `filament-edit-page-tester` will be documented in this file.
 
+## 1.1.0 - 2026-02-17
+
+### Added
+- Filament v5 support (v5 is a Livewire v4 / Tailwind CSS v4 compatibility release with no API changes over v4)
+
 ## 1.0.0 - 2026-01-21
 
 ### Added
 - Initial release
-- Support for all standard Filament v4 field types
+- Support for all standard Filament v4/v5 field types
 - Automated form filling
 - Field preview testing
 - Save validation
@@ -37,4 +42,4 @@ All notable changes to `filament-edit-page-tester` will be documented in this fi
 - Custom field handlers for application-specific fields
 - Extensible architecture
 - Compatible with Pest v3 and v4
-- Full Filament v4 support
+- Full Filament v4/v5 support

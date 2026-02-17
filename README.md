@@ -4,7 +4,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/theofanisv/filament-edit-page-browser-test.svg)](https://packagist.org/packages/theofanisv/filament-edit-page-browser-test)
 [![License](https://img.shields.io/packagist/l/theofanisv/filament-edit-page-browser-test.svg)](https://packagist.org/packages/theofanisv/filament-edit-page-browser-test)
 
-A powerful automated browser testing framework for **Filament v4** Edit Pages using **Pest PHP**. This package simplifies end-to-end testing of Filament resource edit pages by providing an elegant API to fill forms, preview field values, and compare saved data.
+A powerful automated browser testing framework for **Filament v4/v5** Edit Pages using **Pest PHP**. This package simplifies end-to-end testing of Filament resource edit pages by providing an elegant API to fill forms, preview field values, and compare saved data.
 
 ## Features
 
@@ -21,7 +21,7 @@ A powerful automated browser testing framework for **Filament v4** Edit Pages us
 
 - PHP 8.2 or 8.3
 - Laravel 11+
-- Filament v4
+- Filament v4 or v5
 - Pest v3 or v4 with Browser Testing plugin
 
 ## Installation
@@ -210,7 +210,7 @@ EditPageTester::make($user)
 
 ## Supported Field Types
 
-The package supports all standard Filament v4 field types out of the box:
+The package supports all standard Filament v4/v5 field types out of the box:
 
 | Field Type | Fill Support | Preview Support | Compare Support |
 |------------|--------------|-----------------|-----------------|

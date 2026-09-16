@@ -22,6 +22,7 @@ use Illuminate\Support\Collection;
 use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\Webpage;
 use RuntimeException;
+use Theograms\EditPageTester\FilamentSelector;
 use Theograms\EditPageTester\Iteration;
 use Illuminate\Support\Str;
 
@@ -45,6 +46,18 @@ trait FormFiller
     /**
      * @return AwaitableWebpage|Webpage
      */
+    /**
+     * How long to let the Livewire round trip settle after pressing save, before looking for
+     * the success notification. Raise it on slower machines or heavier forms.
+     */
+    public static float $saveSettleSeconds = 1;
+
+    /**
+     * How long to wait for Filament's debounced inputs to reach the Livewire state. Filament
+     * debounces at 500ms, so anything below that loses the last keystroke.
+     */
+    public static float $debounceSeconds = 0.7;
+
     public function fillFormAndSubmit(): AwaitableWebpage
     {
         $page = visit($this->getEditPageUrl())
@@ -69,13 +82,21 @@ trait FormFiller
                 Textarea::class,
                 TextInput::class => $page->type($s->input(), (string)$this->new->$name),
 
-                Select::class => [
-                    $page->click($s->dropdownButton()),
-                    $field->isSearchable()
-                        ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$name, fn() => $field->getOptions()[$this->new->$name]))
-                        : null,
-                    $page->click($s->dropdownOption($this->new->$name)),
-                ],
+                // A nullable Select whose new value is null has no option to click: the
+                // dropdown only lists real options. Clearing it is what "set this to null"
+                // means in the UI, and passing null through to dropdownOption() only produced
+                // a TypeError further down.
+                Select::class => blank($this->new->$name)
+                    // Filament only renders the clear button once the Select holds a value,
+                    // so clicking it on an already empty field waits forever.
+                    ? (filled($this->current->$name) ? [$page->click($s->dropdownClearButton())] : [])
+                    : [
+                        $page->click($s->dropdownButton()),
+                        $field->isSearchable()
+                            ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$name, fn() => $field->getOptions()[$this->new->$name]))
+                            : null,
+                        $page->click($s->dropdownOption($this->new->$name)),
+                    ],
 
                 RichEditor::class => $page->type($s->richText(), $this->new->$name),
 
@@ -142,14 +163,23 @@ trait FormFiller
                             $page->typeSlowly($s->keyValueKeyInput($row + 1), (string)$key),
                             $page->typeSlowly($s->keyValueValueInput($row + 1), (string)$array[$key]),
                         ]),
+                    // Filament debounces the key-value inputs by 500ms before pushing them into
+                    // the Livewire state. Submitting straight after typing drops the last
+                    // keystroke of the final cell: 'Gamma' is saved as 'Gamm'.
+                    $page->wait(static::$debounceSeconds),
                 ],
 
                 default => throw new RuntimeException('Component ' . $field::class . " ($name) is not testable for filling, found on {$this->getEditPage()}."),
             };
         }
 
+        // Waiting for the URL to change only works when the resource overrides getRedirectUrl().
+        // Filament's default is to stay on the edit page and show a success notification, so
+        // that notification is what we wait for: it is also proof the save actually succeeded,
+        // and its selector carries no translated text.
         return $page->press('.fi-main [type=submit]')
-            ->assertPathIsNot($this->getEditPageUrl()); // We need to wait for the data to be persisted, otherwise it continues too quickly, and the changes are not yet saved.
+            ->wait(static::$saveSettleSeconds)
+            ->assertVisible(FilamentSelector::successNotification());
     }
 
 }

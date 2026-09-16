@@ -176,7 +176,7 @@ class FilamentSelector
      */
     public function keyValueKeyInput(int $row = 1): string
     {
-        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) td:nth-of-type(1) input";
+        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) input[x-model=\"row.key\"]";
     }
 
     public function keyValueRows(): string
@@ -189,7 +189,7 @@ class FilamentSelector
      */
     public function keyValueValueInput(int $row = 1): string
     {
-        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) td:nth-of-type(2) input";
+        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) input[x-model=\"row.value\"]";
     }
 
     /**
@@ -197,11 +197,20 @@ class FilamentSelector
      */
     public function keyValueDeleteRowButton(int $row = 1): string
     {
-        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) td:nth-of-type(3) button[aria-label=\"Delete row\"]";
+        return $this->wirePartial() . " .fi-fo-key-value-table tbody tr:nth-of-type($row) td:last-of-type button";
     }
 
     public function keyValueAddRowButton(): string
     {
         return $this->wirePartial() . ' .fi-input-wrp-content-ctn .fi-fo-key-value-add-action-ctn button';
+    }
+
+    /**
+     * The success notification Filament shows after a successful save. Language independent,
+     * unlike the notification text, and present whether or not the page redirects.
+     */
+    public static function successNotification(): string
+    {
+        return '.fi-no-notification.fi-status-success';
     }
 }

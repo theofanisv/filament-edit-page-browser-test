@@ -25,6 +25,7 @@ use Filament\Forms\Components\Toggle;
 use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\Webpage;
 use RuntimeException;
+use Illuminate\Support\Str;
 
 /**
  * @mixin \Theograms\EditPageTester\EditPageTester
@@ -72,7 +73,7 @@ trait FormViewer
             ->assertNoJavascriptErrors();
 
         foreach ($this->getFields() as $name => $field) {
-            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing preview: <info>$name</info> (" . str_after($field::class, 'Filament\Forms\Components\\') . ')');
+            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing preview: <info>$name</info> (" . Str::after($field::class, 'Filament\Forms\Components\\') . ')');
             $s = $this->s($name);
 
             if (value($this->previewFieldUsing, $name, $field, $page) === false) {

@@ -82,13 +82,21 @@ trait FormFiller
                 Textarea::class,
                 TextInput::class => $page->type($s->input(), (string)$this->new->$name),
 
-                Select::class => [
-                    $page->click($s->dropdownButton()),
-                    $field->isSearchable()
-                        ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$name, fn() => $field->getOptions()[$this->new->$name]))
-                        : null,
-                    $page->click($s->dropdownOption($this->new->$name)),
-                ],
+                // A nullable Select whose new value is null has no option to click: the
+                // dropdown only lists real options. Clearing it is what "set this to null"
+                // means in the UI, and passing null through to dropdownOption() only produced
+                // a TypeError further down.
+                Select::class => blank($this->new->$name)
+                    // Filament only renders the clear button once the Select holds a value,
+                    // so clicking it on an already empty field waits forever.
+                    ? (filled($this->current->$name) ? [$page->click($s->dropdownClearButton())] : [])
+                    : [
+                        $page->click($s->dropdownButton()),
+                        $field->isSearchable()
+                            ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$name, fn() => $field->getOptions()[$this->new->$name]))
+                            : null,
+                        $page->click($s->dropdownOption($this->new->$name)),
+                    ],
 
                 RichEditor::class => $page->type($s->richText(), $this->new->$name),
 

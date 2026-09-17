@@ -51,7 +51,7 @@ trait ValuesComparator
         throw_unless($this->new, 'New record not provided.');
 
         foreach ($this->getFields() as $name => $field) {
-            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing saved: <info>$name</info> (" . str_after($field::class, 'Filament\Forms\Components\\') . ')');
+            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing saved: <info>$name</info> (" . Str::after($field::class, 'Filament\Forms\Components\\') . ')');
             $message = "Values are different after save for '$name' on {$this->getEditPage()} (" . $field::class . ')';
 
             if (value($this->compareValueUsing, $name, $field, $this->current, $this->new) === false) {

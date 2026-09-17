@@ -23,6 +23,7 @@ use Pest\Browser\Api\AwaitableWebpage;
 use Pest\Browser\Api\Webpage;
 use RuntimeException;
 use Theograms\EditPageTester\Iteration;
+use Illuminate\Support\Str;
 
 /**
  * @mixin \Theograms\EditPageTester\EditPageTester
@@ -50,7 +51,7 @@ trait FormFiller
             ->assertNoJavascriptErrors();
 
         foreach ($this->getFields() as $name => $field) {
-            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing fill: <info>$name</info> (" . str_after($field::class, 'Filament\Forms\Components\\') . ')');
+            $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing fill: <info>$name</info> (" . Str::after($field::class, 'Filament\Forms\Components\\') . ')');
 
             if (value($this->fillFieldUsing, $name, $field, $page) === false) {
                 continue;

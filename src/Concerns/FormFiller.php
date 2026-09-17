@@ -79,8 +79,16 @@ trait FormFiller
             $s = $this->s($name);
 
             match ($field::class) {
+                // Filament binds text fields with wire:model (no .live), so the typed value
+                // only reaches the Livewire state on blur. Any later field that triggers a
+                // round trip — a KeyValue row, a relationship select — re-renders the form
+                // from the server and the entangled value snaps back, silently concatenating
+                // the old text with the new. Tab moves focus on and commits the value.
                 Textarea::class,
-                TextInput::class => $page->type($s->input(), (string)$this->new->$name),
+                TextInput::class => [
+                    $page->type($s->input(), (string)$this->new->$name),
+                    $page->keys($s->input(), 'Tab'),
+                ],
 
                 // A nullable Select whose new value is null has no option to click: the
                 // dropdown only lists real options. Clearing it is what "set this to null"

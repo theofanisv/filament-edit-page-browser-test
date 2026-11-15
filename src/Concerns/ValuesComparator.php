@@ -51,6 +51,7 @@ trait ValuesComparator
         throw_unless($this->new, 'New record not provided.');
 
         foreach ($this->getFields() as $name => $field) {
+            $attribute = static::attributeOf($name, $field);
             $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing saved: <info>$name</info> (" . Str::after($field::class, 'Filament\Forms\Components\\') . ')');
             $message = "Values are different after save for '$name' on {$this->getEditPage()} (" . $field::class . ')';
 
@@ -69,22 +70,22 @@ trait ValuesComparator
                 TextInput::class,
                 TimePicker::class,
                 ToggleButtons::class,
-                Select::class => expect($this->current->$name)->toEqual($this->new->$name, $message),
+                Select::class => expect($this->current->$attribute)->toEqual($this->new->$attribute, $message),
 
                 CodeEditor::class,
-                KeyValue::class => expect($this->current->$name)->toEqualCanonicalizing($this->new->$name, $message),
+                KeyValue::class => expect($this->current->$attribute)->toEqualCanonicalizing($this->new->$attribute, $message),
 
                 CheckboxList::class => filled($field->getRelationshipName())
-                    ? expect($this->current->$name->pluck($field->getRelationshipTitleAttribute())->toArray())->toEqualCanonicalizing($this->new->$name->pluck($field->getRelationshipTitleAttribute())->toArray(), $message)
-                    : expect($this->current->$name)->toEqualCanonicalizing($this->new->$name, $message),
+                    ? expect($this->current->$attribute->pluck($field->getRelationshipTitleAttribute())->toArray())->toEqualCanonicalizing($this->new->$attribute->pluck($field->getRelationshipTitleAttribute())->toArray(), $message)
+                    : expect($this->current->$attribute)->toEqualCanonicalizing($this->new->$attribute, $message),
 
                 Checkbox::class,
-                Toggle::class => expect((bool)$this->current->$name)->toBe((bool)$this->new->$name, $message),
+                Toggle::class => expect((bool)$this->current->$attribute)->toBe((bool)$this->new->$attribute, $message),
 
-                RichEditor::class => expect(Str::between($this->current->$name, '<p>', '</p>'))->toBe($this->new->$name, $message),
+                RichEditor::class => expect(Str::between($this->current->$attribute, '<p>', '</p>'))->toBe($this->new->$attribute, $message),
 
                 DateTimePicker::class,
-                DatePicker::class => expect($this->current->$name?->toDateTimeString())->toBe($this->new->$name?->toDateTimeString(), $message),
+                DatePicker::class => expect($this->current->$attribute?->toDateTimeString())->toBe($this->new->$attribute?->toDateTimeString(), $message),
 
                 default => throw new RuntimeException('Field ' . $field::class . " ($name) is not testable for comparison, found on {$this->getEditPage()}."),
             };

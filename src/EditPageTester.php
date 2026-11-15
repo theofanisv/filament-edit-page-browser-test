@@ -8,6 +8,7 @@ use Theograms\EditPageTester\Concerns\ValuesComparator;
 use Theograms\EditPageTester\Contracts\CustomFieldHandler;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
+use Filament\Schemas\Components\Component;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -90,6 +91,17 @@ class EditPageTester
     protected function getFields(): Collection
     {
         return collect($this->getSchema()->getFlatFields());
+    }
+
+    /**
+     * The model attribute behind a form field. The form keys its fields by state path, and since Filament 5.7.1 a
+     * state path loses the `>` of a JSON path: a field named `parameters->pos` is keyed `parameters-pos`, which the
+     * model does not have. Such a field is read through its name, so the model must resolve a JSON path on read, as
+     * Eloquent does on write. Every other field keeps its key, as do the page selectors.
+     */
+    public static function attributeOf(string $key, Field|Component $field): string
+    {
+        return $field instanceof Field && str_contains($field->getName(), '->') ? $field->getName() : $key;
     }
 
     public function requiredVisibleFields(array $fields): static

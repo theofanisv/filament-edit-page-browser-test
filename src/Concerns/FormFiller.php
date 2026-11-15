@@ -64,6 +64,7 @@ trait FormFiller
             ->assertNoJavascriptErrors();
 
         foreach ($this->getFields() as $name => $field) {
+            $attribute = static::attributeOf($name, $field);
             $this->verboseLog('* <comment>' . class_basename($this->getEditPage()) . "</comment> testing fill: <info>$name</info> (" . Str::after($field::class, 'Filament\Forms\Components\\') . ')');
 
             if (value($this->fillFieldUsing, $name, $field, $page) === false) {
@@ -86,7 +87,7 @@ trait FormFiller
                 // the old text with the new. Tab moves focus on and commits the value.
                 Textarea::class,
                 TextInput::class => [
-                    $page->type($s->input(), (string)$this->new->$name),
+                    $page->type($s->input(), (string)$this->new->$attribute),
                     $page->keys($s->input(), 'Tab'),
                 ],
 
@@ -94,21 +95,21 @@ trait FormFiller
                 // dropdown only lists real options. Clearing it is what "set this to null"
                 // means in the UI, and passing null through to dropdownOption() only produced
                 // a TypeError further down.
-                Select::class => blank($this->new->$name)
+                Select::class => blank($this->new->$attribute)
                     // Filament only renders the clear button once the Select holds a value,
                     // so clicking it on an already empty field waits forever.
-                    ? (filled($this->current->$name) ? [$page->click($s->dropdownClearButton())] : [])
+                    ? (filled($this->current->$attribute) ? [$page->click($s->dropdownClearButton())] : [])
                     : [
                         $page->click($s->dropdownButton()),
                         $field->isSearchable()
-                            ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$name, fn() => $field->getOptions()[$this->new->$name]))
+                            ? $page->type($s->dropdownSearch(), $this->getDisplayValue($name, $this->new->$attribute, fn() => $field->getOptions()[$this->new->$attribute]))
                             : null,
-                        $page->click($s->dropdownOption($this->new->$name)),
+                        $page->click($s->dropdownOption($this->new->$attribute)),
                     ],
 
-                RichEditor::class => $page->type($s->richText(), $this->new->$name),
+                RichEditor::class => $page->type($s->richText(), $this->new->$attribute),
 
-                DateTimePicker::class => ($datetime = $this->new->$name)
+                DateTimePicker::class => ($datetime = $this->new->$attribute)
                     ? $page
                         ->click($s->datetimeTrigger())
                         ->type($s->datetimeYearInput(), (string)$datetime->year)
@@ -120,7 +121,7 @@ trait FormFiller
                         ->click($s->datetimeDayDiv($datetime->day))
                     : $page->keys($s->input(), 'Backspace'),
 
-                DatePicker::class => ($date = $this->new->$name)
+                DatePicker::class => ($date = $this->new->$attribute)
                     ? $page
                         ->click($s->datetimeTrigger())
                         ->type($s->datetimeYearInput(), (string)$date->year)
@@ -129,13 +130,13 @@ trait FormFiller
                     : $page->keys($s->input(), 'Backspace'),
 
 
-                Toggle::class => str($page->attribute($s->toggleButton(), 'aria-checked'))->toBoolean() !== (bool)$this->new->$name
+                Toggle::class => str($page->attribute($s->toggleButton(), 'aria-checked'))->toBoolean() !== (bool)$this->new->$attribute
                     ? $page->click($s->toggleButton())
                     : null,
 
-                ToggleButtons::class => $page->click($s->labelFor($page->attribute($s->toggleButtonsItem($this->new->$name), 'id'))),
+                ToggleButtons::class => $page->click($s->labelFor($page->attribute($s->toggleButtonsItem($this->new->$attribute), 'id'))),
 
-                Checkbox::class => $this->new->$name
+                Checkbox::class => $this->new->$attribute
                     ? $page->check($s->checkbox())
                     : $page->uncheck($s->checkbox()),
 
@@ -143,8 +144,8 @@ trait FormFiller
                     ->each(
                         fn(string $item) => $this->getDisplayValue($name, $item,
                             fn() => filled($field->getRelationshipName())
-                                ? in_array($item, $this->new->$name->modelKeys())
-                                : in_array($item, collect($this->new->$name)->toArray())
+                                ? in_array($item, $this->new->$attribute->modelKeys())
+                                : in_array($item, collect($this->new->$attribute)->toArray())
                         )
                             ? $page->check($s->checkboxListItem($item))
                             : $page->uncheck($s->checkboxListItem($item))
@@ -153,8 +154,8 @@ trait FormFiller
                 CodeEditor::class => [
                     $page->clear($s->codeEditor()),
                     $field->getLanguage() === Language::Json
-                        ? $page->type($s->codeEditor(), json_encode($this->new->$name))
-                        : $page->type($s->codeEditor(), (string)$this->new->$name),
+                        ? $page->type($s->codeEditor(), json_encode($this->new->$attribute))
+                        : $page->type($s->codeEditor(), (string)$this->new->$attribute),
                 ],
 
                 KeyValue::class => [
@@ -163,7 +164,7 @@ trait FormFiller
                         fn() => $page->click($s->keyValueDeleteRowButton())
                     ),
                     Collection::times(
-                        ($array = collect(is_string($array = $this->new->$name) ? json_decode($array, true) : $array))->count() - 1,
+                        ($array = collect(is_string($array = $this->new->$attribute) ? json_decode($array, true) : $array))->count() - 1,
                         fn() => $page->click($s->keyValueAddRowButton())
                     ),
                     $array->keys()

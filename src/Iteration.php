@@ -14,6 +14,12 @@ class Iteration
      * HTML Selector for this field name.
      */
     public readonly FilamentSelector $s;
+
+    /**
+     * The model attribute this field reads and writes, see {@see EditPageTester::attributeOf()}.
+     */
+    public readonly string $attribute;
+
     public readonly mixed $currentValue;
     public readonly mixed $newValue;
 
@@ -32,11 +38,12 @@ class Iteration
     )
     {
         $this->s = new FilamentSelector($this->name);
-        $this->currentValue = $this->currentModel->{$this->name};
+        $this->attribute = EditPageTester::attributeOf($this->name, $this->field);
+        $this->currentValue = $this->currentModel->{$this->attribute};
         if (isset($this->newModel)) {
             // If $newModel is not provided then do not set $newValue so it throws exception instead of null.
             // Because since it is not set the developer should not use it, because it is missing some logic.
-            $this->newValue = $this->newModel->{$this->name};
+            $this->newValue = $this->newModel->{$this->attribute};
         }
     }
 

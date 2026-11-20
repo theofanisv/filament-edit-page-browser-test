@@ -75,14 +75,29 @@ class FilamentSelector
         return $this->wirePartial() . ' .tiptap';
     }
 
+    /**
+     * The element that opens the picker's panel: a button up to Filament 5.7, a text input (`role="combobox"`) since.
+     */
     public function datetimeTrigger(): string
     {
-        return $this->wirePartial() . ' button.fi-fo-date-time-picker-trigger';
+        return $this->wirePartial() . ' .fi-fo-date-time-picker-trigger';
     }
 
+    /**
+     * A day of the month the panel shows, or every day without one. Up to Filament 5.7 the days are the calendar's
+     * own children; since, they sit in week rows and carry their date in `data-date` (`YYYY-MM-DD`), so the n-th day
+     * among its siblings is no longer the n-th day of the month.
+     */
     public function datetimeDayDiv(?int $day = null): string
     {
-        return $this->wirePartial() . ' .fi-fo-date-time-picker-panel .fi-fo-date-time-picker-calendar div:nth-child(' . ($day ?? 'n') . ' of .fi-fo-date-time-picker-calendar-day)';
+        $panel = $this->wirePartial() . ' .fi-fo-date-time-picker-panel';
+
+        if ($day === null) {
+            return $panel . ' .fi-fo-date-time-picker-calendar-day';
+        }
+
+        return $panel . ' .fi-fo-date-time-picker-calendar > div:nth-child(' . $day . ' of .fi-fo-date-time-picker-calendar-day), '
+            . $panel . ' .fi-fo-date-time-picker-calendar-day[data-date$="-' . str_pad((string) $day, 2, '0', STR_PAD_LEFT) . '"]';
     }
 
     public function datetimeMonthSelect(): string
